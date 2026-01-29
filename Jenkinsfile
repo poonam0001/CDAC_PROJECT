@@ -36,11 +36,35 @@ pipeline {
             }
         }
 
+        stage('Trivy FS Scan (Source Code)') {
+            steps {
+                sh '''
+                  trivy fs \
+                  --exit-code 1 \
+                  --severity HIGH,CRITICAL \
+                  .
+                '''
+            }
+        }
+
+
         stage('Build Image') {
             steps {
                 sh "/usr/bin/docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
+
+         stage('Trivy Image Scan') {
+            steps {
+                sh '''
+                  trivy image \
+                  --exit-code 0 \
+                  --severity HIGH,CRITICAL \
+                  $IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
+
 
         stage('Push Image') {
             steps {
