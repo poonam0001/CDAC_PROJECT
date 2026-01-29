@@ -60,8 +60,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
-                    /usr/bin/docker-compose pull
-                    /usr/bin/docker-compose up -d --force-recreate
+                    /usr/local/bin/docker-compose pull'
+                   /usr/local/bin/docker-compose up -d --force-recreate'
+
                 """
             }
         }
