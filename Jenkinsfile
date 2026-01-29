@@ -1,26 +1,26 @@
 pipeline {
-    // Run all stages on the docker-agent
     agent { label 'docker-agent' }
 
     environment {
         IMAGE_NAME = "poonamyadav361/flask-blog"
-        IMAGE_TAG = "latest"
-        SONAR_HOME = tool "sonar" // Make sure tool name matches Jenkins configuration
+        IMAGE_TAG  = "latest"
+        SONAR_HOME = tool 'sonar'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/poonam0001/CDAC_PROJECT.git'
+                git branch: 'main',
+                    url: 'https://github.com/poonam0001/CDAC_PROJECT.git'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv("sonar") {
+                withSonarQubeEnv('sonar') {
                     sh """
-                        $SONAR_HOME/bin/sonar-scanner \
+                        ${SONAR_HOME}/bin/sonar-scanner \
                         -Dsonar.projectName=flask_blog \
                         -Dsonar.projectKey=flask_blog
                     """
@@ -38,7 +38,7 @@ pipeline {
 
         stage('Build Image') {
             steps {
-                sh '/usr/bin/docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh "/usr/bin/docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
 
@@ -50,8 +50,8 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
-                        echo \$DOCKER_PASS | /usr/bin/docker login -u \$DOCKER_USER --password-stdin
-                        /usr/bin/docker push \$IMAGE_NAME:\$IMAGE_TAG
+                        echo "${DOCKER_PASS}" | /usr/bin/docker login -u "${DOCKER_USER}" --password-stdin
+                        /usr/bin/docker push ${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
             }
@@ -60,9 +60,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
-                    /usr/local/bin/docker-compose pull'
-                   /usr/local/bin/docker-compose up -d --force-recreate'
-
+                    /usr/local/bin/docker-compose pull
+                    /usr/local/bin/docker-compose up -d --force-recreate
                 """
             }
         }
